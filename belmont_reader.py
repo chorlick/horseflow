@@ -3,10 +3,13 @@ import io
 import numpy as np
 import pprint
 import re 
+import unicode_dates
+import datetime
 
 class RaceLine:
     lastRaceDate = ""
     lastRaceLoc = ""
+    date = datetime.date(1,1,1)
     horseName = ""
     medications = ""
     equipment = ""
@@ -14,35 +17,55 @@ class RaceLine:
     weight = ""
     pp = ""
     st = ""
-    quartFraction = ""
-    threeEights = ""
-    strVal = ""
-    fin = ""
+    quartFraction = "" #needs work
+    threeEights = "" #needs work
+    strVal = "" #needs work
+    fin = "" #needs work
     jockey = ""
     purse = ""
     odds = ""
-    
+  
+    def norm(self):
+        x = re.findall(r'(\d{1,})(.)(\d{1,})', self.lastRaceDate[0].strip())
+        month = unicode_dates.unicodeMonthToNumber(x[0][1])
+        self.date = datetime.date(int(x[0][2]) + 2000, int(month), int(x[0][0]))
+        x = re.findall(r'(\w+)', self.lastRaceLoc[0].strip())
+        self.lastRaceLoc = x[0].strip()
+        self.horseName = self.horseName[0].strip()
+        self.medications = self.medications[0].strip()
+        self.aVal = self.aVal[0].strip()
+        self.weight = self.weight[0].strip()
+        self.pp = self.pp[0].strip()
+        self.st = self.st[0].strip()
+        self.jockey = self.jockey[0].strip()
+        self.purse = self.purse[0].strip()
+        self.odds = self.odds[0].strip()
+        self.quartFraction = self.quartFraction[0].strip()
+        self.threeEights = self.threeEights[0].strip()
+        self.fin = self.fin[0].strip()
+        self.equipment = self.equipment[0].strip()
+        self.strVal = self.strVal[0].strip()
 
     def __str__(self):
-        return "[lastRaceData:"  + self.lastRaceDate[0] + \
-                ", lastRaceLoc:" + self.lastRaceLoc[0] + \
-                ", horseName:"   + self.horseName[0] + \
-                ", equipment:"   + self.equipment[0] + \
-                ", medications:" + self.medications[0] + \
-                ", A:"           + self.aVal[0] + \
-                ", weight:"      + self.weight[0] + \
-                ", pp:"          + self.pp[0] + \
-                ", st:"          + self.st[0] + \
-                ", quartFraction:" + self.quartFraction[0] + \
-                ", threeEights:" + self.threeEights[0] + \
-                ", strVal:"      + self.strVal[0] + \
-                ", fin:"         + self.fin[0] + \
-                ", jockey:"      + self.jockey[0] + \
-                ", purse:"       + self.purse[0] + \
-                ", odds:"        + self.odds[0] + \
+        return "[lastRaceDate:"    + str(self.date.strftime("%m/%d/%Y")) + \
+                ", lastRaceLoc:"   + self.lastRaceLoc + \
+                ", horseName:"     + self.horseName + \
+                ", equipment:"     + self.equipment + \
+                ", medications:"   + self.medications + \
+                ", A:"             + self.aVal + \
+                ", weight:"        + self.weight + \
+                ", pp:"            + self.pp + \
+                ", st:"            + self.st + \
+                ", quartFraction:" + self.quartFraction + \
+                ", threeEights:"   + self.threeEights + \
+                ", strVal:"        + self.strVal + \
+                ", fin:"           + self.fin + \
+                ", jockey:"        + self.jockey + \
+                ", purse:"         + self.purse + \
+                ", odds:"          + self.odds + \
                 "]"
-
-
+  
+  
 buffer = io.StringIO()
 tables = camelot.read_pdf("./race_charts/BEL2019061901.pdf",flavor="stream")
 np_matrix = tables[0].df.values
@@ -131,7 +154,7 @@ for line in horses[0]:
         header.append(line.strip())
 
 print(header)
-for horse in horses[1:5]:
+for horse in horses[4:5]:
     b_horse = ' '.join(horse).replace('\n', ' ').replace('\r', ' ')
     h = RaceLine()
     print(b_horse)
@@ -167,7 +190,9 @@ for horse in horses[1:5]:
     b_horse = b_horse[len(h.purse[0]):].strip()
     h.odds = getOdds(b_horse)
     horseObjs.append(h)
+    h.norm()
     print(h)
+    
     
 
 
