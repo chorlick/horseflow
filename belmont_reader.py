@@ -24,21 +24,22 @@ class RaceLine:
     
 
     def __str__(self):
-        return "[lastRaceData:"  + self.lastRaceDate + \
-                ", lastRaceLoc:" + self.lastRaceLoc + \
-                ", horseName:"   + self.horseName + \
-                ", medications:" + self.medications + \
-                ", A:"           + self.aVal + \
-                ", weight:"      + self.weight + \
-                ", pp:"          + self.pp + \
-                ", st:"          + self.st + \
-                ", quartFraction:" + self.quartFraction + \
-                ", threeEights:" + self.threeEights + \
-                ", strVal:"      + self.strVal + \
-                ", fin:"         + self.fin + \
-                ", jockey:"      + self.jockey + \
-                ", purse:"       + self.purse + \
-                ", odds:"        + self.odds + \
+        return "[lastRaceData:"  + self.lastRaceDate[0] + \
+                ", lastRaceLoc:" + self.lastRaceLoc[0] + \
+                ", horseName:"   + self.horseName[0] + \
+                ", equipment:"   + self.equipment[0] + \
+                ", medications:" + self.medications[0] + \
+                ", A:"           + self.aVal[0] + \
+                ", weight:"      + self.weight[0] + \
+                ", pp:"          + self.pp[0] + \
+                ", st:"          + self.st[0] + \
+                ", quartFraction:" + self.quartFraction[0] + \
+                ", threeEights:" + self.threeEights[0] + \
+                ", strVal:"      + self.strVal[0] + \
+                ", fin:"         + self.fin[0] + \
+                ", jockey:"      + self.jockey[0] + \
+                ", purse:"       + self.purse[0] + \
+                ", odds:"        + self.odds[0] + \
                 "]"
 
 
@@ -58,7 +59,7 @@ for row in np_matrix:
 
 
 def getLastRaceDate(line) :
-    return re.findall(r'^(.*?)\s.', line)
+    return re.findall(r'^(.*?)\s.', line.strip())
     
 
 def getLastRaceLoc(line) :
@@ -66,13 +67,21 @@ def getLastRaceLoc(line) :
 
 
 def getHorseName(line) :
-    return re.findall(r'^(\w\'?.*?)[L|M]', line.strip())
+    return re.findall(r'^(\w\'?.*?)[L]', line.strip())
 
 def getHorseMedications(line) :
-    return re.findall(r'^([M|L])\s.', line.strip())
+    x = re.findall(r'^([M|L])\s.', line.strip())
+    if len(x) > 0 :
+        return x
+    else:
+        return ['']
 
 def getHorseEquipment(line) :
-    return re.findall(r'^(bf\s.*?)|(b\s.*?)|(f\s.*?)|(fb\s.*?)\s.', line.strip())
+    x = re.findall(r'(?:b|f)+\s+', line.strip())
+    if len(x) > 0:
+        return x
+    else:
+        return ['']
 
 def getHorseAVal(line):
     return re.findall(r'^(.*?)\s.', line.strip())
@@ -102,51 +111,63 @@ def getJockey(line):
     return re.findall(r'^(\w.*?)[0-9]', line.strip())
 
 def getPurse(line):
-    return re.findall(r'^(\d+.*?)[0-9]', line)
+    return re.findall(r'^(\d+.*?)[0-9]', line.strip())
 
 def getOdds(line):
-    return re.findall(r'(\d+\.?\d*)', line)
+    return re.findall(r'(\d+\.?\d*)', line.strip())
 
 horseObjs = []
 #for horse in horses[1: len(horses)] :
-for horse in horses[1: 3] :
+header = []
+
+for line in horses[0]:
+    if line.strip() :
+        if line.find(r"M\Eqt") :
+            elements = line.split(' ')
+            for element in elements :
+                header.append(element.strip())
+            continue
+                
+        header.append(line.strip())
+
+print(header)
+for horse in horses[1:5]:
     b_horse = ' '.join(horse).replace('\n', ' ').replace('\r', ' ')
     h = RaceLine()
     print(b_horse)
     h.lastRaceDate = getLastRaceDate(b_horse)
-    b_horse = b_horse[len(h.lastRaceDate[0]):]
+    b_horse = b_horse[len(h.lastRaceDate[0]):].strip()
     h.lastRaceLoc = getLastRaceLoc(b_horse )
-    b_horse = b_horse[len(h.lastRaceLoc[0]) + 2:]
+    b_horse = b_horse[len(h.lastRaceLoc[0]):].strip()
     h.horseName = getHorseName(b_horse)
     b_horse = b_horse[len(h.horseName[0]):]
     h.medications = getHorseMedications(b_horse)
-    b_horse = b_horse[len(h.medications[0]):]
+    b_horse = b_horse[len(h.medications[0]):].strip()
     h.equipment = getHorseEquipment(b_horse)
-    b_horse = b_horse[len(h.equipment[0]):]
+    b_horse = b_horse[len(h.equipment[0]):].strip()
     h.aVal = getHorseAVal(b_horse)
-    b_horse = b_horse[len(h.aVal[0]) + 1:]
+    b_horse = b_horse[len(h.aVal[0]):].strip()
     h.weight = getHorseWeight(b_horse)
-    b_horse = b_horse[len(h.weight[0]):]
+    b_horse = b_horse[len(h.weight[0]):].strip()
     h.pp = getHorsePP(b_horse)
-    b_horse = b_horse[len(h.pp[0]):]
+    b_horse = b_horse[len(h.pp[0]):].strip()
     h.st = getHorseSt(b_horse)
-    b_horse = b_horse[len(h.st[0]):]
+    b_horse = b_horse[len(h.st[0]):].strip()
     h.quartFraction = getHorseQuarterFraction(b_horse)
-    b_horse = b_horse[len(h.quartFraction[0]):]
+    b_horse = b_horse[len(h.quartFraction[0]) :].strip()
     h.threeEights = getHorseThreeEightsFraction(b_horse)
-    b_horse = b_horse[len(h.threeEights[0]):]
+    b_horse = b_horse[len(h.threeEights[0]):].strip()
     h.strVal = getHorseStrVal(b_horse)
-    b_horse = b_horse[len(h.strVal[0]):]
+    b_horse = b_horse[len(h.strVal[0]) :].strip()
     h.fin = getHorseFin(b_horse)
-    b_horse = b_horse[len(h.fin[0]):]
+    b_horse = b_horse[len(h.fin[0]):].strip()
     h.jockey = getJockey(b_horse)
-    b_horse = b_horse[len(h.jockey[0]):]
+    b_horse = b_horse[len(h.jockey[0]):].strip()
     h.purse = getPurse(b_horse)
-    b_horse = b_horse[len(h.purse[0]):]
+    b_horse = b_horse[len(h.purse[0]):].strip()
     h.odds = getOdds(b_horse)
     horseObjs.append(h)
-
-print(horseObjs[0])
+    print(h)
     
 
 
